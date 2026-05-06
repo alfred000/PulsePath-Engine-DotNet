@@ -1,4 +1,4 @@
-namespace PulsePath.Models
+namespace PulsePath_Engine_DotNet.Models
 {
     public class DailyLog
     {

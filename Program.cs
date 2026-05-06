@@ -1,7 +1,13 @@
 ﻿using PulsePath_Engine_DotNet.Business;
 
-double myBmr = MetabolicEngine.CalculateBMR(80, 180, 30, true);
-double myFactor = MetabolicEngine.GetActivityFactor(12000);
-double myTdee = MetabolicEngine.CalculateTDEE(myBmr, myFactor);
+double poidsActuel = 85.0;
+double poidsCible = 80.0;
+double tdee = 2500.0;
+int caloriesConsommees = 2000; // Déficit de 500 kcal/jour
 
-Console.WriteLine($"Mon TDEE aujourd'hui : {myTdee} kcal");
+double deficitHebdo = (caloriesConsommees - tdee) * 7; // -3500 kcal/semaine
+DateTime dateEstimee = VelocityEngine.ProjectTargetDate(poidsActuel, poidsCible, deficitHebdo);
+
+Console.WriteLine("--- PulsePath Engine .NET ---");
+Console.WriteLine($"Date cible estimée : {dateEstimee.ToShortDateString()}");
+

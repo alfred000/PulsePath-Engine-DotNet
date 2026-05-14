@@ -1,3 +1,5 @@
+using PulsePath_Engine_DotNet.Models;
+
 namespace PulsePath_Engine_DotNet.Business;
 
 public static class InsightEngine
@@ -21,5 +23,23 @@ public static class InsightEngine
             return "⚠️ ALERTE : Apport protéique trop bas. Risque de perte musculaire pendant le déficit.";
         }
         return "✅ INFO : Apport protéique suffisant pour protéger vos muscles.";
+    }
+
+    // Règle RM-GAM-01 : Calcul du Score d'Intégrité
+    public static int CalculateIntegrityScore(DailyLog log)
+    {
+        int score = 0;
+
+        // Poids et Calories (Critique : 50%)
+        if (log.Weight > 0 && log.CaloriesIn > 0) score += 50;
+
+        // Pas et Sommeil (30%)
+        if (log.Steps > 0 && log.SleepHours > 0) score += 30;
+
+        // Protéines et Jeûne (20% - 10% chacun)
+        if (log.ProteinsIn > 0) score += 10;
+        if (log.FastingValidated) score += 10;
+
+        return score;
     }
 }

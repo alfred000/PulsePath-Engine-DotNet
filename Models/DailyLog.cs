@@ -7,6 +7,8 @@ namespace PulsePath_Engine_DotNet.Models
         public int CaloriesIn { get; set; }
         public int Steps { get; set; }
         public double SleepHours { get; set; }
-        // We will add Protein and Fasting later (V1.1)
+        public int ProteinsIn { get; set; } // Ajout pour RM-GAM-01
+        public bool FastingValidated { get; set; } // Ajout pour RM-GAM-01
+
     }
 }

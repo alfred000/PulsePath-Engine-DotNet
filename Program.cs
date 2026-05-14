@@ -36,6 +36,13 @@ class Program
             Console.Write("Heures de sommeil : ");
             log.SleepHours = double.Parse(Console.ReadLine()!);
 
+            Console.Write("Protéines consommées (g) [0 si non renseigné] : ");
+            log.ProteinsIn = int.Parse(Console.ReadLine()!);
+
+            Console.Write("Objectif de jeûne atteint ? (o/n) : ");
+            log.FastingValidated = Console.ReadLine()?.ToLower() == "o";
+
+
             // 1. Calcul immédiat du TDEE (RM-MET-01)
             double bmr = MetabolicEngine.CalculateBMR(log.Weight, 180, 30, true); // Taille/Âge fixés pour le test
             double facteur = MetabolicEngine.GetActivityFactor(log.Steps);
@@ -53,10 +60,21 @@ class Program
 
             // 4. Génération des Insights (Coaching automatisé)
             string conseilSommeil = InsightEngine.GetSleepInsight(log.SleepHours);
-
+            // Calcul du score d'intégrité (RM-GAM-01)
+            int scoreIntegrite = InsightEngine.CalculateIntegrityScore(log);
             Console.WriteLine("\n--- COACHING & INSIGHTS ---");
             Console.WriteLine(conseilSommeil);
+            Console.WriteLine($"📊 SCORE D'INTÉGRITÉ DE LA DONNÉE : {scoreIntegrite}%");
 
+            if (scoreIntegrite == 100)
+            {
+                Console.WriteLine("🏆 FÉLICITATIONS : Badge 'Intégrité' débloqué ! Vos prédictions sont fiables à 95%.");
+            }
+            else
+            {
+                Console.WriteLine("ℹ️ INFO : Log incomplet. La fiabilité de l'estimation de la trajectoire est réduite.");
+            }
+            
             if (dateEstimee == DateTime.MaxValue)
             {
                 Console.WriteLine("Trajectoire : En surplus (Pas de date d'échéance possible)");

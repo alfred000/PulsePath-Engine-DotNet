@@ -9,6 +9,7 @@ namespace PulsePath_Engine_DotNet.Models
         public double SleepHours { get; set; }
         public int ProteinsIn { get; set; } // Ajout pour RM-GAM-01
         public bool FastingValidated { get; set; } // Ajout pour RM-GAM-01
+        public int WorkoutsDone { get; set; } // Nombre de séances effectuées aujourd'hui (0 ou 1)
 
     }
 }

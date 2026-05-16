@@ -29,15 +29,6 @@ public static class MetabolicEngine
         return weight / (heightMeters * heightMeters);
     }
 
-    //  Interprétation de l'IMC et Recommandation de Plage
-    public static (string categorie, double poidsMin, double poidsMax) GetImcInterpretation(double heightCm)
-    {
-        double heightMeters = heightCm / 100;
-        double poidsMin = 18.5 * (heightMeters * heightMeters);
-        double poidsMax = 25.0 * (heightMeters * heightMeters);
-        return ("Interprétation gérée dans l'UI", poidsMin, poidsMax);
-    }
-
     //  Calcul de l'IMG (Deurenberg)
     public static double CalculateIMG(double imc, int age, bool isMale)
     {
@@ -62,5 +53,33 @@ public static class MetabolicEngine
     public static double CalculateCaloriesBurned(double tdee, double bmr)
     {
         return tdee - bmr;
+    }
+
+    // Ajustement de la méthode GetImcInterpretation pour retourner aussi la catégorie textuelle
+    public static (string categorie, double poidsMin, double poidsMax) GetImcInterpretation(double heightCm, double imc)
+    {
+        double heightMeters = heightCm / 100;
+        double poidsMin = 18.5 * (heightMeters * heightMeters);
+        double poidsMax = 25.0 * (heightMeters * heightMeters);
+        
+        string categorie = "Normal";
+        if (imc < 18.5) categorie = "Maigreur";
+        else if (imc >= 25.0 && imc < 30.0) categorie = "Surpoids";
+        else if (imc >= 30.0) categorie = "Obésité";
+
+        return (categorie, poidsMin, poidsMax);
+    }
+
+    // Règle de niveau d'activité de base (Diagnostic de départ)
+    public static double GetInitialActivityFactor(int choix)
+    {
+        return choix switch
+        {
+            1 => 1.2,  // Sédentaire
+            2 => 1.375, // Activité légère
+            3 => 1.55,  // Activité modérée
+            4 => 1.725, // Activité élevée
+            _ => 1.2
+        };
     }
 }

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PulsePath-Engine-DotNet")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9ce4ffdcb9b5b3eefae44609c4a756c9ce6096ff")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+36a4d5e107cc8f8109ffb348519a2eb199229f11")]
 [assembly: System.Reflection.AssemblyProductAttribute("PulsePath-Engine-DotNet")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PulsePath-Engine-DotNet")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

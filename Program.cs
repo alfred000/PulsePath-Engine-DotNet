@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using PulsePath_Engine_DotNet.Models;
 using PulsePath_Engine_DotNet.Business;
 
@@ -9,193 +8,87 @@ class Program
 {
     static void Main(string[] args)
     {
-        LogService service = new LogService();
-        
-        // Configuration de la date de départ (Simule que l'objectif a été fixé il y a 5 jours)
-        DateTime dateFixationObjectif = DateTime.Now.AddDays(-5); 
+        LogService logService = new LogService();
+        DateTime dateFixation = DateTime.Now.AddDays(-5); // Simulation
+        UserProfile profile = new UserProfile();
         
         Console.WriteLine("=========================================================");
         Console.WriteLine("🚀     BIENVENUE SUR PULSEPATH ENGINE (.NET V2)        🚀");
         Console.WriteLine("=========================================================");
         
-        // --- ÉTAPE 1 : ONBOARDING & DIAGNOSTIC MÉTABOLIQUE ---
-        Console.WriteLine("\n[1/3] DIAGNOSTIC DE DÉPART");
+        // --- ÉTAPE 1 & 2 : ONBOARDING & PLANIFICATION S.M.A.R.T ---
+        Console.WriteLine("\n[1/2] CONFIGURATION DU PROFIL & OBJECTIF");
+        Console.Write("Genre (h/f) : "); profile.IsMale = Console.ReadLine()?.ToLower() == "h";
+        Console.Write("Votre Âge (ans) : "); profile.Age = int.Parse(Console.ReadLine()!);
+        Console.Write("Votre Taille (cm) : "); profile.HeightCm = double.Parse(Console.ReadLine()!);
+        Console.Write("Poids de départ (kg) : "); profile.WeightDepart = double.Parse(Console.ReadLine()!);
         
-        Console.Write("Genre (h/f) : ");
-        bool isMale = Console.ReadLine()?.ToLower() == "h";
+        Console.Write("Objectif (perte / seche / maintien / gain) : "); profile.Objectif = Console.ReadLine()?.ToLower() ?? "maintien";
+        Console.Write("Poids cible (kg) : "); profile.WeightCible = double.Parse(Console.ReadLine()!);
+        Console.Write("Nombre de Séances d'entrainement prévues / semaine : "); profile.SeancesPrevues = int.Parse(Console.ReadLine()!);
 
-        Console.Write("Votre Âge (ans) : ");
-        int age = int.Parse(Console.ReadLine()!);
+        // Calibrage initial des calories et macros
+        double bmrInitial = MetabolicEngine.CalculateBMR(profile.WeightDepart, profile.HeightCm, profile.Age, profile.IsMale);
+        profile.BudgetCaloriesCible = bmrInitial * 1.2; // Base sédentaire par défaut pour l'onboarding
+        if (profile.Objectif == "perte" || profile.Objectif == "seche") profile.BudgetCaloriesCible -= 500;
+        else if (profile.Objectif == "gain") profile.BudgetCaloriesCible += 300;
 
-        Console.Write("Votre Taille (cm) : ");
-        double tailleCm = double.Parse(Console.ReadLine()!);
+        var (pro, glu, lip) = MetabolicEngine.CalculateMacros(profile.BudgetCaloriesCible, profile.Objectif);
+        Console.WriteLine($"🎯 Apport cible : {profile.BudgetCaloriesCible:F0} kcal | Macros : P: {pro}g, G: {glu}g, L: {lip}g");
 
-        Console.Write("Poids de départ (kg) : ");
-        double poidsDepart = double.Parse(Console.ReadLine()!);
+        // Initialisation de l'orchestrateur service
+        PulsePathOrchestrator orchestrator = new PulsePathOrchestrator(profile, logService, dateFixation);
 
-        Console.WriteLine("\nNiveau d'activité physique habituel :");
-        Console.WriteLine("1. Mode de vie sédentaire (Bureau, peu de déplacements)");
-        Console.WriteLine("2. Activité légère (Travail debout, marche légère)");
-        Console.WriteLine("3. Activité modérée (Actif, marche beaucoup, entraînement léger)");
-        Console.WriteLine("4. Activité élevée (Métier physique, entraînement intense)");
-        Console.Write("Votre choix (1-4) : ");
-        int choixActivite = int.Parse(Console.ReadLine()!);
-
-        // Exécution des calculs biométriques initiaux
-        double bmrInitial = MetabolicEngine.CalculateBMR(poidsDepart, tailleCm, age, isMale);
-        double imcInitial = MetabolicEngine.CalculateIMC(poidsDepart, tailleCm);
-        double imgInitial = MetabolicEngine.CalculateIMG(imcInitial, age, isMale);
-        var (categorieImc, poidsMin, poidsMax) = MetabolicEngine.GetImcInterpretation(tailleCm, imcInitial);
-        double facteurInitial = MetabolicEngine.GetInitialActivityFactor(choixActivite);
-        double tdeeInitial = MetabolicEngine.CalculateTDEE(bmrInitial, facteurInitial);
-
-        // Affichage du profil santé initial
-        Console.WriteLine("\n------------------- DIAGNOSTIC INITIAL -------------------");
-        Console.WriteLine($"📊 Catégorie IMC : {categorieImc} ({imcInitial:F1})");
-        Console.WriteLine($"🧬 IMG (Masse Grasse) : {imgInitial:F1}%");
-        Console.WriteLine($"⚖️ Votre plage de poids bien-être : {poidsMin:F1} kg - {poidsMax:F1} kg");
-        Console.WriteLine($"🍏 Métabolisme de Base (BMR) : {bmrInitial:F0} kcal");
-        Console.WriteLine($"🔥 Maintenance théorique initiale : {tdeeInitial:F0} kcal / jour");
-        
-        // --- ÉTAPE 2 : PLANIFICATION S.M.A.R.T ---
-        Console.WriteLine("\n[2/3] PLANIFICATION DE L'OBJECTIF S.M.A.R.T");
-        Console.WriteLine("Choisissez votre objectif : (perte / seche / maintien / gain)");
-        Console.Write("Votre choix : ");
-        string objectif = Console.ReadLine()?.ToLower() ?? "maintien";
-
-        Console.Write("Entrez votre poids cible (kg) : ");
-        double poidsCible = double.Parse(Console.ReadLine()!);
-
-        Console.Write("Combien de séances de sport prévoyez-vous par semaine ? : ");
-        int seancesPrevues = int.Parse(Console.ReadLine()!);
-
-        // Calcul du budget énergétique cible
-        double budgetCaloriesCible = tdeeInitial;
-        if (objectif == "perte" || objectif == "seche") budgetCaloriesCible -= 500;
-        else if (objectif == "gain") budgetCaloriesCible += 300;
-
-        var (pro, glu, lip) = MetabolicEngine.CalculateMacros(budgetCaloriesCible, objectif);
-
-        Console.WriteLine("\n------------------- VOTRE PLANNING VALIDÉ -------------------");
-        Console.WriteLine($"🎯 Apport énergétique ciblé : {budgetCaloriesCible:F0} kcal / jour");
-        Console.WriteLine($"🧬 Ratios Macros : P: {pro}g | G: {glu}g | L: {lip}g");
-        Console.WriteLine($"🏋️ Fréquence d'entraînement cible : {seancesPrevues} séances / semaine");
-        if (objectif == "perte" || objectif == "seche")
-        {
-            Console.WriteLine($"💡 Stratégie : Atteignez {budgetCaloriesCible:F0} kcal. Ajoutez 8000 pas/jour ou du cardio LISS pour maximiser la dépense.");
-        }
-
-        // --- ÉTAPE 3 : JOURNALISATION QUOTIDIENNE (DAILY LOG) ---
-        Console.WriteLine("\n[3/3] DOSSIER DE SUIVI QUOTIDIEN");
-
+        // --- ÉTAPE 3 : JOURNALISATION QUOTIDIENNE ---
         bool continuer = true;
         while (continuer)
         {
             Console.WriteLine("\n--- Saisie de la journée de suivi ---");
             DailyLog log = new DailyLog { Date = DateTime.Now };
 
-            Console.Write("Poids du jour (kg) : ");
-            log.Weight = double.Parse(Console.ReadLine()!);
+            Console.Write("Poids du jour (kg) : "); log.Weight = double.Parse(Console.ReadLine()!);
+            Console.Write("Calories consommées (kcal) : "); log.CaloriesIn = int.Parse(Console.ReadLine()!);
+            Console.Write("Nombre de pas : "); log.Steps = int.Parse(Console.ReadLine()!);
+            Console.Write("Heures de sommeil : "); log.SleepHours = double.Parse(Console.ReadLine()!);
+            Console.Write("Protéines (g) : "); log.ProteinsIn = int.Parse(Console.ReadLine()!);
+            Console.Write("Séance de sport validée ? (1 pour oui/0 pour non) : "); log.WorkoutsDone = int.Parse(Console.ReadLine()!);
+            Console.Write("Objectif de jeûne atteint ? (o pour oui/n pour non) : "); log.FastingValidated = Console.ReadLine()?.ToLower() == "o";
 
-            Console.Write("Calories consommées (kcal) : ");
-            log.CaloriesIn = int.Parse(Console.ReadLine()!);
+            // Envoi au service d'orchestration
+            DashboardResult result = orchestrator.ProcessDailyLog(log);
 
-            Console.Write("Nombre de pas (Montre connectée) : ");
-            log.Steps = int.Parse(Console.ReadLine()!);
-
-            Console.Write("Heures de sommeil (Tracker de nuit) : ");
-            log.SleepHours = double.Parse(Console.ReadLine()!);
-
-            Console.Write("Protéines consommées (g) : ");
-            log.ProteinsIn = int.Parse(Console.ReadLine()!);
-
-            Console.Write("Séance de sport validée aujourd'hui ? (1 pour oui / 0 pour non) : ");
-            log.WorkoutsDone = int.Parse(Console.ReadLine()!);
-
-            Console.Write("Objectif de jeûne intermittent atteint ? (o/n) : ");
-            log.FastingValidated = Console.ReadLine()?.ToLower() == "o";
-
-            // Calculs dynamiques du jour (RM-MET-01)
-            double bmrDuJour = MetabolicEngine.CalculateBMR(log.Weight, tailleCm, age, isMale);
-            double facteurActivite = MetabolicEngine.GetActivityFactor(log.Steps);
-            double tdeeDuJour = MetabolicEngine.CalculateTDEE(bmrDuJour, facteurActivite);
-            double caloriesBruleesActivite = MetabolicEngine.CalculateCaloriesBurned(tdeeDuJour, bmrDuJour);
-
-            // Enregistrement des données et calcul de vélocité (RM-VEL-01)
-            service.AddLog(log);
-            double deficitHebdoReel = service.GetAverageWeeklyDeficit(tdeeDuJour);
-            DateTime dateEstimee = VelocityEngine.ProjectTargetDate(log.Weight, poidsCible, deficitHebdoReel);
-
-            // --- APPLICATION DE LA RÈGLE RM-KPI-01 : PROGRESSION LINÉAIRE ---
-            int joursEcoules = (DateTime.Now - dateFixationObjectif).Days + 1;
-            double perteTotaleKg = 0;
-            double progresPourcent = 0;
-
-            if (objectif == "perte" || objectif == "seche")
-            {
-                // Si l'utilisateur est en surplus (poids du jour >= poids de départ), le progrès reste figé à 0
-                if (log.Weight < poidsDepart)
-                {
-                    perteTotaleKg = poidsDepart - log.Weight;
-                    double totalAPerdre = poidsDepart - poidsCible;
-                    progresPourcent = (perteTotaleKg / totalAPerdre) * 100;
-                    if (progresPourcent > 100) progresPourcent = 100.0;
-                }
-                else
-                {
-                    perteTotaleKg = 0.0;
-                    progresPourcent = 0.0;
-                }
-            }
-
-            int totalSeancesCetteSemaine = service.GetAllLogs().Sum(l => l.WorkoutsDone);
-            int scoreIntegrite = InsightEngine.CalculateIntegrityScore(log);
-
-            // Simulation d'un calcul de retard pour déclencher le moteur de rattrapage
-            int joursRetard = 0;
-            if (dateEstimee != DateTime.MaxValue && dateEstimee > DateTime.Now.AddDays(30))
-            {
-                joursRetard = (dateEstimee - DateTime.Now.AddDays(30)).Days;
-            }
-
-            // --- RESTITUTION DU DASHBOARD CONSOLE ---
-            Console.WriteLine("\n=================== DASHBOARD DU JOUR ===================");
-            Console.WriteLine($"⏱️ Jours cumulés depuis le début : {joursEcoules} jours");
-            Console.WriteLine($"📉 Perte totale : {perteTotaleKg:F1} kg | 📈 Progrès global : {progresPourcent:F1}%");
-            Console.WriteLine($"🔥 TDEE du jour : {tdeeDuJour:F0} kcal | 🏃 Activité (Pas/LISS) : +{caloriesBruleesActivite:F0} kcal");
-            Console.WriteLine($"🏋️ Séances validées cette semaine : {totalSeancesCetteSemaine} / {seancesPrevues}");
-            Console.WriteLine($"⚖️ Balance Calorique Net du jour : {log.CaloriesIn - tdeeDuJour:F0} kcal");
+            // === RESTITUTION STRUCTURÉE DU DASHBOARD CONSOLE ===
             
-            if (dateEstimee == DateTime.MaxValue)
-                Console.WriteLine("⏱️ Trajectoire : Échéance gelée (En surplus métabolique temporaire).");
-            else
-                Console.WriteLine($"⏱️ Date d'échéance révisée : {dateEstimee.ToShortDateString()}");
+            // BLOC 1 : DASHBOARD DU JOUR (KPIs)
+            Console.WriteLine("\n=================== [BLOC 1] DASHBOARD DU JOUR ===================");
+            Console.WriteLine($"⏱️ Jours cumulés : {result.JoursEcoules} jours | 🏋️ Sport : {result.TotalSeancesCetteSemaine} / {profile.SeancesPrevues} séances");
+            Console.WriteLine($"📉 Perte totale : {result.PerteTotaleKg:F1} kg | 📈 Progrès global : {result.ProgresPourcent:F1}%");
+            Console.WriteLine($"🔥 TDEE : {result.TdeeDuJour:F0} kcal | 🏃 Activité : +{result.CaloriesBruleesActivite:F0} kcal");
+            Console.WriteLine($"⚖️ Balance Calorique Net : {log.CaloriesIn - result.TdeeDuJour:F0} kcal");
+            Console.WriteLine(result.DateEstimee == DateTime.MaxValue ? "⏱️ Trajectoire : Échéance gelée." : $"⏱️ Date d'échéance révisée : {result.DateEstimee.ToShortDateString()}");
 
-            // --- INTELLIGENCE PRESCRIPTIVE : MOTEUR DE RATTRAPAGE (RM-COR-01) ---
-            if (joursRetard >= 3)
+            // BLOC 2 : RECOMMANDATION PRESCRIPTIVE (AIDE À LA DÉCISION)
+            Console.WriteLine("\n=================== [BLOC 2] RECOMMANDATION PRESCRIPTIVE ===================");
+            if (result.PlanCorrection != null)
             {
-                // Objectif de pas initial fixé à 8000 pour le calcul de déviation
-                var planRattrapage = CourseCorrectionEngine.CalculateCourseCorrection(log.Weight, budgetCaloriesCible, 8000, bmrDuJour, joursRetard);
-                
-                Console.WriteLine("\n🚨 --- RECOMMANDATION PRESCRIPTIVE (REMETTRE SUR LA BONNE VOIE) ---");
-                Console.WriteLine($"{planRattrapage.Message}");
-                Console.WriteLine($"Cible Calories temporaire (7 jours) : {planRattrapage.CibleCalories:F0} kcal (Seuil de sécurité BMR respecté)");
-                Console.WriteLine($"Cible Pas temporaire (7 jours)      : {planRattrapage.CiblePas:F0} pas");
-                Console.WriteLine($"Cardio LISS suggéré                 : {planRattrapage.CardioLISSSuggere}");
+                Console.WriteLine($"{result.PlanCorrection.Message}");
+                Console.WriteLine($"🎯 Nouvelle cible Calories (7 jours) : {result.PlanCorrection.CibleCalories:F0} kcal");
+                Console.WriteLine($"🏃 Nouvelle cible Pas (7 jours)      : {result.PlanCorrection.CiblePas:F0} pas");
+                Console.WriteLine($"🏋️ Cardio LISS suggéré             : {result.PlanCorrection.CardioLISSSuggere}");
             }
             else
             {
-                Console.WriteLine("\n--- COACHING & INSIGHTS STANDARD ---");
-                Console.WriteLine(InsightEngine.GetSleepInsight(log.SleepHours));
-                Console.WriteLine(InsightEngine.GetProteinInsight(log.ProteinsIn, log.Weight));
-                Console.WriteLine($"📊 Score d'Intégrité de la donnée : {scoreIntegrite}%");
-                if (scoreIntegrite == 100) Console.WriteLine("🏆 Badge 'Intégrité' débloqué ! Vos données de santé sont parfaitement fiables.");
+                Console.WriteLine(result.MessagePrescriptif);
             }
+
+            // BLOC 3 : COACHING ET INSIGHTS COMPORTEMENTAUX
+            Console.WriteLine("\n=================== [BLOC 3] COACHING & INSIGHTS ===================");
+            Console.WriteLine(InsightEngine.GetSleepInsight(log.SleepHours));
+            Console.WriteLine(InsightEngine.GetProteinInsight(log.ProteinsIn, log.Weight));
+            Console.WriteLine($"📊 Score d'Intégrité des données : {result.ScoreIntegrite}%");
 
             Console.Write("\nAjouter une autre journée ? (o/n) : ");
             continuer = Console.ReadLine()?.ToLower() == "o";
         }
-        
-        Console.WriteLine("\nApplication fermée. Toutes les métriques ont été calculées.");
     }
 }

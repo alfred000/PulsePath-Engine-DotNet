@@ -8,4 +8,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!-- Dit au projet principal d'ignorer complètement le dossier de test -->
+    <Compile Remove="PulsePath.Tests\**" />
+    <EmbeddedResource Remove="PulsePath.Tests\**" />
+    <None Remove="PulsePath.Tests\**" />
+  </ItemGroup>
 </Project>

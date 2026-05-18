@@ -1,25 +1,44 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using PulsePath_Engine_DotNet.Data;
 using PulsePath_Engine_DotNet.Models;
 
 namespace PulsePath_Engine_DotNet.Business;
 
 public class LogService
 {
-    private List<DailyLog> _logs = new List<DailyLog>();
-
-    // Ajouter une entrée
-    public void AddLog(DailyLog log)
+    // Initialise et assure la création automatique de la base de données
+    public LogService()
     {
-        _logs.Add(log);
+        using var context = new PulsePathContext();
+        context.Database.EnsureCreated(); // Crée la base de données et la table si elles n'existent pas
     }
 
-    // Récupérer tous les logs
-    public List<DailyLog> GetAllLogs() => _logs;
+    // Ajouter une entrée en base de données SQLite
+    public void AddLog(DailyLog log)
+    {
+        using var context = new PulsePathContext();
+        context.DailyLogs.Add(log);
+        context.SaveChanges(); // Persiste la donnée sur le disque dur
+    }
 
-    // Règle RM-VEL-01 : Calculer la moyenne du déficit sur les 7 derniers jours
+    // Récupérer l'intégralité des logs depuis la base de données
+    public List<DailyLog> GetAllLogs()
+    {
+        using var context = new PulsePathContext();
+        return context.DailyLogs.ToList();
+    }
+
+    // Calcul de la moyenne glissante sur les 7 derniers logs persistés (RM-VEL-01)
     public double GetAverageWeeklyDeficit(double currentTdee)
     {
-        // On prend les 7 derniers éléments
-        var lastSevenDays = _logs.OrderByDescending(l => l.Date).Take(7).ToList();
+        using var context = new PulsePathContext();
+        
+        var lastSevenDays = context.DailyLogs
+            .OrderByDescending(l => l.Date)
+            .Take(7)
+            .ToList();
         
         if (lastSevenDays.Count == 0) return 0;
 

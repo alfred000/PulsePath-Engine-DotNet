@@ -2,6 +2,7 @@ namespace PulsePath_Engine_DotNet.Models
 {
     public class DailyLog
     {
+        public int Id { get; set; } // Clé primaire auto-incrémentée pour SQLite
         public DateTime Date { get; set; }
         public double Weight { get; set; }
         public int CaloriesIn { get; set; }

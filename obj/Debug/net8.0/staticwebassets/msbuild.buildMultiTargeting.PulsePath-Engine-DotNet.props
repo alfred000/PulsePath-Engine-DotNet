@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\PulsePath-Engine-DotNet.props" />
+</Project>

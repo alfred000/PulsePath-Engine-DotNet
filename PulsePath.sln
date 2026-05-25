@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PulsePath-Engine-DotNet", "PulsePath-Engine-DotNet.csproj", "{CDBD3ED9-5F0D-4C0F-81EE-0293F1E1D0B1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PulsePath.Tests", "PulsePath.Tests\PulsePath.Tests.csproj", "{D5817507-B9B0-45E4-BC8A-C59606D32166}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CDBD3ED9-5F0D-4C0F-81EE-0293F1E1D0B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDBD3ED9-5F0D-4C0F-81EE-0293F1E1D0B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDBD3ED9-5F0D-4C0F-81EE-0293F1E1D0B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDBD3ED9-5F0D-4C0F-81EE-0293F1E1D0B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5817507-B9B0-45E4-BC8A-C59606D32166}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5817507-B9B0-45E4-BC8A-C59606D32166}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5817507-B9B0-45E4-BC8A-C59606D32166}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5817507-B9B0-45E4-BC8A-C59606D32166}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

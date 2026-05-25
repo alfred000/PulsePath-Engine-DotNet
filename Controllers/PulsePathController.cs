@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using PulsePath_Engine_DotNet.Models;
 using PulsePath_Engine_DotNet.Business;
 using PulsePath_Engine_DotNet.DTOs;
+//Un alias strict pour cibler votre classe de calcul métabolique
+using UserProfile = PulsePath_Engine_DotNet.Business.UserProfile;
 
 namespace PulsePath_Engine_DotNet.Controllers;
 

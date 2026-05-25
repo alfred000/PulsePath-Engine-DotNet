@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\buildMultiTargeting\PulsePath-Engine-DotNet.props" />
-</Project>

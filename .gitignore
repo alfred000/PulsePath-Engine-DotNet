@@ -1,0 +1,12 @@
+# Dossiers de compilation et binaires
+bin/
+obj/
+
+# Fichiers de base de données locale (Optionnel, selon votre choix de portfolio)
+*.db
+*.db-journal
+
+# Fichiers de configuration utilisateur d'IDE
+.vscode/
+.idea/
+*.user

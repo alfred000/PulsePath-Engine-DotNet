@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using PulsePath_Engine_DotNet.DTOs;
-using PulsePath_Engine_DotNet.Models;
-using PulsePath_Engine_DotNet.Data;
-using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;   // Core assembly for security tokens descriptor
+using System.IdentityModel.Tokens.Jwt;  // Core assembly for JWT handler
 using System.Security.Claims;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using PulsePath_Engine_DotNet.Data;
+using PulsePath_Engine_DotNet.Models;
+using PulsePath_Engine_DotNet.DTOs;
  
 
 namespace PulsePath.Engine.API.Controllers

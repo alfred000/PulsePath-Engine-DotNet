@@ -47,35 +47,38 @@ public class Program
         });
 
         // Configuration avancée de Swagger pour supporter l'authentification JWT visuellement
+        // Remplacez votre bloc builder.Services.AddSwaggerGen(...) par cette implémentation :
         builder.Services.AddSwaggerGen(c =>
         {
-            c.SwaggerDoc("v1", new OpenApiInfo
-            {
-                Title = "PulsePath Engine API V2",
-                Version = "v1"
+            c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo 
+            { 
+                Title = "PulsePath Engine API V2", 
+                Version = "v1" 
             });
 
-            // 1. Definition for JWT Bearer Tokens
-            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            var securityScheme = new Microsoft.OpenApi.Models.OpenApiSecurityScheme
             {
                 Name = "Authorization",
-                Description = "Enter your JWT token in this format: Bearer {votre_token}",
-                In = ParameterLocation.Header,
-                Type = SecuritySchemeType.ApiKey,
+                Description = "Saisissez votre jeton JWT de la forme : Bearer {votre_token}",
+                In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
                 Scheme = "Bearer",
-                BearerFormat = "JWT"
-            });
+                BearerFormat = "JWT",
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Id = "Bearer",
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme
+                }
+            };
 
-            // 2. Programmatic injection to completely bypass the CS1950 dictionary initializer error
-            c.AddSecurityRequirement(document =>
+            c.AddSecurityDefinition("Bearer", securityScheme);
+
+            c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
             {
-                var requirement = new OpenApiSecurityRequirement();
-                var schemeReference = new OpenApiSecuritySchemeReference("Bearer", document);
-
-                requirement.Add(schemeReference, new List<string>());
-                return requirement;
+                { securityScheme, Array.Empty<string>() }
             });
         });
+
 
 
         // Configuration CORS pour autoriser les futures requêtes Web (Angular/React)

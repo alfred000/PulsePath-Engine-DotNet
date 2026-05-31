@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Centralisation d'Entity Framework Core pour SQLite dans la couche Infrastructure -->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.27" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.1.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Référence vers la couche métier pour mapper les modèles -->
+    <ProjectReference Include="..\PulsePath.Core\PulsePath.Core.csproj" />
+  </ItemGroup>
+</Project>

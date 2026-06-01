@@ -101,6 +101,10 @@ public class Program
         builder.Services.AddScoped<IAuthService, AuthService>();
         // Enregistrement du service de génération de tokens JWT
         builder.Services.AddScoped<ITokenService, TokenService>();
+        // Enregistrement du cycle de vie du profil métabolique
+        builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
+        builder.Services.AddScoped<IProfileService, ProfileService>();  
+        
         // 3. Construction de l'application
         var app = builder.Build();
 

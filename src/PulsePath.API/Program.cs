@@ -104,6 +104,8 @@ public class Program
         // Enregistrement du cycle de vie du profil métabolique
         builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
         builder.Services.AddScoped<IProfileService, ProfileService>();  
+        // Append this underneath your current profile service declarations
+        builder.Services.AddScoped<IGoalEngine, GoalEngine>();
         
         // 3. Construction de l'application
         var app = builder.Build();
